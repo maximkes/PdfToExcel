@@ -62,6 +62,7 @@ namespace PdfToExcel2
 
         private void SaveToExcel(List<string> Text, string path, string name)
         {
+            name = GenerateName(path, name);
             Excel.Application oXL;
             Excel._Workbook oWB;
             Excel._Worksheet oSheet;
@@ -84,6 +85,9 @@ namespace PdfToExcel2
                     textBox1.Text = ((i + 1).ToString() + "/" + N.ToString() + ": " + Text[i-1]);
                 }
 
+                oWB.SaveAs(path+"\\"+name, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+            false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
+            Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
                 textBox1.Text = "Записано";
 
 
