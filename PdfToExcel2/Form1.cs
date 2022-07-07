@@ -13,22 +13,27 @@ namespace PdfToExcel2
 {
     public partial class Form1 : Form
     {
+        public string path_str;
         public Form1()
         {
             InitializeComponent();
+            path_str = "c:\\";
+            textBox1.Enabled = false; 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            textBox1.Text = "Выберите файл в отдельном окне";
+            button1.Enabled = false;
             var fileContent = string.Empty;
             var filePath = string.Empty;
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.InitialDirectory = path_str;
                 openFileDialog.Filter = "PDF Files|*.pdf";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
-
+                
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     //Get the path of specified file
@@ -40,29 +45,30 @@ namespace PdfToExcel2
                     using (StreamReader reader = new StreamReader(fileStream))
                     {
                         fileContent = reader.ReadToEnd();
-                    }
-                }
-            }
-            button1.Enabled = false;
-            var TextList = GetText(filePath);
-            for (int i = 0; i < TextList.Count; i++)
-            {
-                string L = "";
-                foreach (var x in TextList[i].Split("\n"))
-                    L = L + x;
-                TextList[i] = L;
-                int a = (TextList[i]).Length;
-            }
-            string name = GetFileName(filePath);
-            string path = GetFilePath(filePath);
 
-            SaveToExcel(TextList, path, name);
+                    }
+                    var TextList = GetText(filePath);
+                    int N = TextList.Count;
+                    for (int i = 0; i < N; i++)
+                    {
+                        TextList[i] = TextList[i].Replace("\n", "");
+                    }
+                    string name = GetFileName(filePath);
+                    path_str = GetFilePath(filePath);
+
+                    SaveToExcel(TextList, name);
+                    this.Text = path_str;
+                }
+                else
+                    textBox1.Text = "";
+            }
             button1.Enabled = true;
+
         }
 
-        private void SaveToExcel(List<string> Text, string path, string name)
+        private void SaveToExcel(List<string> Text, string name)
         {
-            name = GenerateName(path, name);
+            name = GenerateName(path_str, name);
             Excel.Application oXL;
             Excel._Workbook oWB;
             Excel._Worksheet oSheet;
@@ -85,9 +91,10 @@ namespace PdfToExcel2
                     textBox1.Text = ((i + 1).ToString() + "/" + N.ToString() + ": " + Text[i-1]);
                 }
 
-                oWB.SaveAs(path+"\\"+name, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
+                oWB.SaveAs(path_str+"\\"+name, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
             false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
             Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                //oWB.Close();
                 textBox1.Text = "Записано";
 
 
@@ -117,7 +124,7 @@ namespace PdfToExcel2
                 {
                     res.Add(PdfTextExtractor.GetTextFromPage(reader, i));
                 }
-
+                reader.Close();
                 return res;
             }
         }
