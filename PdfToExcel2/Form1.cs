@@ -36,6 +36,7 @@ namespace PdfToExcel2
                 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    Cursor.Current = Cursors.WaitCursor;
                     //Get the path of specified file
                     filePath = openFileDialog.FileName;
 
@@ -55,8 +56,9 @@ namespace PdfToExcel2
                     }
                     string name = GetFileName(filePath);
                     path_str = GetFilePath(filePath);
-
+                    textBox1.Text = "Файл " + name + ".pdf открыватеся";
                     SaveToExcel(TextList, name);
+                    Cursor.Current = Cursors.Default;
                     this.Text = path_str;
                 }
                 else
@@ -78,7 +80,7 @@ namespace PdfToExcel2
             {
                 //Start Excel and get Application object.
                 oXL = new Excel.Application();
-                oXL.Visible = true;
+                //oXL.Visible = true;
 
                 //Get a new workbook.
                 oWB = (Excel._Workbook)(oXL.Workbooks.Add(Missing.Value));
@@ -94,9 +96,10 @@ namespace PdfToExcel2
                 oWB.SaveAs(path_str+"\\"+name, Microsoft.Office.Interop.Excel.XlFileFormat.xlWorkbookDefault, Type.Missing, Type.Missing,
             false, false, Microsoft.Office.Interop.Excel.XlSaveAsAccessMode.xlNoChange,
             Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
-                //oWB.Close();
+                oWB.Close();
+                oXL.Quit();
                 textBox1.Text = "Записано";
-
+                
 
             }
             catch (Exception theException)
